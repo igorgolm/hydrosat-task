@@ -1,6 +1,6 @@
-# Data Platform (Documentation)
+# HydroSat Data Platform
 
-This directory contains all the conceptual and operational guides needed to understand, provision, and use the platform.
+This repository contains all the conceptual and operational guides needed to understand, provision, and use the platform.
 The infrastructure is built using **OpenTofu/Terraform** and organized according to a strict **Stacks & Layers** architecture.
 
 ## Directory Layout (Root)
@@ -21,11 +21,11 @@ The infrastructure is built using **OpenTofu/Terraform** and organized according
 
 ## Sections
 
-- **[Infrastructure Design](architecture.md)**
+- **[Infrastructure Design](docs/architecture.md)**
   An explanation of our architecture, network structure, and the justification for our core technological choices (Terraform/OpenTofu, EKS, Dagster, RDS).
-- **[How to Provision](provisioning.md)**
+- **[How to Provision](docs/provisioning.md)**
   A step-by-step guide to deploying the entire infrastructure from scratch.
-- **[How to Use](usage.md)**
+- **[How to Use](docs/usage.md)**
   Instructions for accessing the deployed services, navigating the Dagster UI, API, and triggering jobs.
-- **[How to Test](testing.md)**
+- **[How to Test](docs/testing.md)**
   A brief overview of our validation process, plan analysis, and naming convention audits to ensure the infrastructure integrity.
