@@ -1,3 +1,8 @@
+'''
+This is a dummy pipeline for testing purposes.
+It has two jobs: one that fails and one that succeeds.
+It also has a sensor that sends a Slack notification when a job fails.
+'''
 import os
 import json
 import urllib.request

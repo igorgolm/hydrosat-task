@@ -83,7 +83,7 @@ We enforce a strict naming convention across all layers to ensure resources are 
 
 *Example: `hydrosat-taskg-dev-eun1-vpc`*
 
-## Scalability: Adding New Environments
+## Adding New Environments
 
 One of the greatest advantages of this Stacks architecture is how easily it scales horizontally. Because the OpenTofu code in the `stacks/` directory contains no hardcoded values, adding a new environment (like `staging` or `prod`) is trivial and requires zero code duplication.
 
