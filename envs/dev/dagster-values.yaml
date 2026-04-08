@@ -1,0 +1,71 @@
+# Dev environment overrides for Dagster
+# https://artifacthub.io/packages/helm/dagster/dagster
+# https://docs.dagster.io/deployment/oss/deployment-options/kubernetes/deploying-to-kubernetes
+dagsterWebserver:
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+telemetry:
+  enabled: true
+
+dagsterDaemon:
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# Ingress for AWS ALB
+ingress:
+  enabled: true
+  ingressClassName: alb
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    # Restrict access to specific IP only
+    alb.ingress.kubernetes.io/inbound-cidrs: "<your_ip>/32"
+  dagsterWebserver:
+    host: "dagster.dev.hydrosat.task"
+    path: "/*"
+    pathType: ImplementationSpecific
+
+# Dagster User Deployments
+dagster-user-deployments:
+  enabled: true
+  enableSubchart: true
+  # Deployment per pipeline file
+  deployments:
+    - name: "dummy-pipeline"
+      image:
+        repository: "dagster/user-code-example" # https://hub.docker.com/r/dagster/user-code-example
+        tag: "1.9.10"
+        pullPolicy: Always
+      dagsterApiGrpcArgs:
+        - "-f"
+        - "/opt/dagster/pipelines/dummy.py"
+      env:
+        - name: DAGSTER_BASE_URL
+          value: "http://dagster.dev.hydrosat.task"
+        - name: SLACK_WEBHOOK_URL
+          valueFrom:
+            secretKeyRef:
+              name: dagster-slack-webhook
+              key: webhook-url
+      port: 3030
+      volumeMounts:
+        - name: dagster-user-pipelines
+          mountPath: /opt/dagster/pipelines/
+      volumes:
+        - name: dagster-user-pipelines
+          configMap:
+            name: dagster-user-pipelines

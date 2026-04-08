@@ -1,0 +1,242 @@
+# https://github.com/go-task/task
+
+version: '3'
+
+vars:
+  TERRAFORM: tofu
+  BACKEND_CONFIG: "common_backend.hcl"
+
+tasks:
+
+  fmt:
+    desc: Format tofu files
+    cmds:
+      - "{{.TERRAFORM}} fmt -recursive ."
+
+  bootstrap-init:
+    desc: Initialize bootstrap layer locally (usage - task bootstrap-init)
+    cmds:
+      - |
+        echo "Initializing bootstrap layer locally..."
+        {{.TERRAFORM}} -chdir=stacks/bootstrap init -backend=false
+
+  bootstrap-apply:
+    desc: Apply bootstrap layer (usage - task bootstrap-apply)
+    cmds:
+      - |
+        echo "Applying bootstrap layer..."
+        {{.TERRAFORM}} -chdir=stacks/bootstrap apply -auto-approve
+
+  bootstrap-migrate:
+    desc: Migrate bootstrap state to S3 (usage - task bootstrap-migrate)
+    cmds:
+      - |
+        echo "Migrating bootstrap state to S3..."
+        {{.TERRAFORM}} -chdir=stacks/bootstrap init -migrate-state
+
+  init:
+    desc: Initialize a Terraform layer (usage - task init -- <layer> <env>)
+    cmds:
+      - |
+        set -- {{.CLI_ARGS}}
+        LAYER=$1
+        ENV=${2:-dev}
+        if [ ! -d "${LAYER}" ]; then
+          if [ -d "stacks/${LAYER}" ]; then
+            LAYER="stacks/${LAYER}"
+          elif [ -d "stacks/aws/${LAYER}" ]; then
+            LAYER="stacks/aws/${LAYER}"
+          elif [ -d "stacks/k8s/${LAYER}" ]; then
+            LAYER="stacks/k8s/${LAYER}"
+          fi
+        fi
+        KEY="envs/${ENV}/$(basename ${LAYER})/terraform.tfstate"
+        echo "Initializing layer: ${LAYER} for environment: ${ENV}..."
+        {{.TERRAFORM}} -chdir=${LAYER} init \
+          -backend-config="$(pwd)/{{.BACKEND_CONFIG}}" \
+          -backend-config="key=${KEY}" \
+          -reconfigure
+
+  validate:
+    desc: Validate a Terraform layer (usage - task validate -- <layer> <env>)
+    cmds:
+      - |
+        set -- {{.CLI_ARGS}}
+        LAYER=$1
+        ENV=${2:-dev}
+        if [ ! -d "${LAYER}" ]; then
+          if [ -d "stacks/${LAYER}" ]; then
+            LAYER="stacks/${LAYER}"
+          elif [ -d "stacks/aws/${LAYER}" ]; then
+            LAYER="stacks/aws/${LAYER}"
+          elif [ -d "stacks/k8s/${LAYER}" ]; then
+            LAYER="stacks/k8s/${LAYER}"
+          fi
+        fi
+        echo "Validating layer: ${LAYER} for environment: ${ENV}..."
+        {{.TERRAFORM}} -chdir=${LAYER} validate
+
+  checkov:
+    desc: Run Checkov static analysis (usage - task checkov -- <layer>)
+    cmds:
+      - |
+        set -- {{.CLI_ARGS}}
+        LAYER=$1
+        if [ ! -d "${LAYER}" ]; then
+          if [ -d "stacks/${LAYER}" ]; then
+            LAYER="stacks/${LAYER}"
+          elif [ -d "stacks/aws/${LAYER}" ]; then
+            LAYER="stacks/aws/${LAYER}"
+          elif [ -d "stacks/k8s/${LAYER}" ]; then
+            LAYER="stacks/k8s/${LAYER}"
+          fi
+        fi
+        echo "Running Checkov on: ${LAYER}..."
+        checkov -d ${LAYER} --framework terraform
+
+  docs:
+    desc: Generate Terraform documentation for a layer (usage - task docs -- <layer>)
+    cmds:
+      - |
+        set -- {{.CLI_ARGS}}
+        LAYER=$1
+        if [ ! -d "${LAYER}" ]; then
+          if [ -d "stacks/${LAYER}" ]; then
+            LAYER="stacks/${LAYER}"
+          elif [ -d "stacks/aws/${LAYER}" ]; then
+            LAYER="stacks/aws/${LAYER}"
+          elif [ -d "stacks/k8s/${LAYER}" ]; then
+            LAYER="stacks/k8s/${LAYER}"
+          fi
+        fi
+        echo "Generating documentation for: ${LAYER}..."
+        terraform-docs markdown table --output-file README.md --output-mode inject ${LAYER}
+
+  docs-all:
+    desc: Generate documentation for all stacks
+    cmds:
+      - |
+        for dir in stacks/aws/*/ stacks/k8s/*/; do
+          if [ -d "$dir" ]; then
+            echo "Generating documentation for ${dir}..."
+            terraform-docs markdown table --output-file README.md --output-mode inject ${dir}
+          fi
+        done
+
+  checkov-all:
+    desc: Run Checkov static analysis for all stacks
+    cmds:
+      - |
+        for dir in stacks/aws/*/ stacks/k8s/*/; do
+          if [ -d "$dir" ]; then
+            echo "Running Checkov on: ${dir}..."
+            checkov -d ${dir} --framework terraform
+          fi
+        done
+
+  plan:
+    desc: Plan a Terraform layer (usage - task plan -- <layer> <env>)
+    cmds:
+      - |
+        set -- {{.CLI_ARGS}}
+        LAYER=$1
+        ENV=${2:-dev}
+        if [ ! -d "${LAYER}" ]; then
+          if [ -d "stacks/${LAYER}" ]; then
+            LAYER="stacks/${LAYER}"
+          elif [ -d "stacks/aws/${LAYER}" ]; then
+            LAYER="stacks/aws/${LAYER}"
+          elif [ -d "stacks/k8s/${LAYER}" ]; then
+            LAYER="stacks/k8s/${LAYER}"
+          fi
+        fi
+        LAYER_BASENAME=$(basename ${LAYER})
+        echo "Planning layer: ${LAYER} for environment: ${ENV}..."
+        {{.TERRAFORM}} -chdir=${LAYER} plan \
+          -var-file="$(pwd)/envs/globals.tfvars" \
+          -var-file="$(pwd)/envs/${ENV}/${LAYER_BASENAME}.tfvars"
+
+  apply:
+    desc: Apply a Terraform layer (usage - task apply -- <layer> <env>)
+    cmds:
+      - |
+        set -- {{.CLI_ARGS}}
+        LAYER=$1
+        ENV=${2:-dev}
+        if [ ! -d "${LAYER}" ]; then
+          if [ -d "stacks/${LAYER}" ]; then
+            LAYER="stacks/${LAYER}"
+          elif [ -d "stacks/aws/${LAYER}" ]; then
+            LAYER="stacks/aws/${LAYER}"
+          elif [ -d "stacks/k8s/${LAYER}" ]; then
+            LAYER="stacks/k8s/${LAYER}"
+          fi
+        fi
+        LAYER_BASENAME=$(basename ${LAYER})
+        echo "Applying layer: ${LAYER} for environment: ${ENV}..."
+        {{.TERRAFORM}} -chdir=${LAYER} apply \
+          -var-file="$(pwd)/envs/globals.tfvars" \
+          -var-file="$(pwd)/envs/${ENV}/${LAYER_BASENAME}.tfvars"
+
+  deploy-all:
+    desc: Apply all layers for a given environment (usage - task deploy-all -- <env>)
+    cmds:
+      - |
+        set -- {{.CLI_ARGS}}
+        ENV=${1:-dev}
+        task: apply -- networking ${ENV}
+        task: apply -- compute ${ENV}
+        task: apply -- database ${ENV}
+        task: apply -- dagster ${ENV}
+
+  status:
+    desc: Show status of all infrastructure layers (usage - task status -- <env>)
+    cmds:
+      - |
+        set -- {{.CLI_ARGS}}
+        ENV=${1:-dev}
+        echo "=== Platform Status [${ENV}] ==="
+        for LAYER_NAME in networking compute database dagster; do
+          LAYER_PATH=""
+          if [ -d "stacks/${LAYER_NAME}" ]; then
+            LAYER_PATH="stacks/${LAYER_NAME}"
+          elif [ -d "stacks/aws/${LAYER_NAME}" ]; then
+            LAYER_PATH="stacks/aws/${LAYER_NAME}"
+          elif [ -d "stacks/k8s/${LAYER_NAME}" ]; then
+            LAYER_PATH="stacks/k8s/${LAYER_NAME}"
+          fi
+
+          if [ -z "${LAYER_PATH}" ]; then
+            printf "%-12s: [MISSING] (Layer directory not found)\n" "${LAYER_NAME}"
+            continue
+          fi
+
+          COUNT=$({{.TERRAFORM}} -chdir=${LAYER_PATH} state list 2>/dev/null | wc -l | xargs)
+          if [ $? -ne 0 ] || [ "${COUNT}" -eq "0" ]; then
+            printf "%-12s: [NOT DEPLOYED] (or state empty)\n" "${LAYER_NAME}"
+          else
+            printf "%-12s: [DEPLOYED] (${COUNT} resources tracked)\n" "${LAYER_NAME}"
+          fi
+        done
+
+  destroy:
+    desc: Destroy a Terraform layer (usage - task destroy -- <layer> <env>)
+    cmds:
+      - |
+        set -- {{.CLI_ARGS}}
+        LAYER=$1
+        ENV=${2:-dev}
+        if [ ! -d "${LAYER}" ]; then
+          if [ -d "stacks/${LAYER}" ]; then
+            LAYER="stacks/${LAYER}"
+          elif [ -d "stacks/aws/${LAYER}" ]; then
+            LAYER="stacks/aws/${LAYER}"
+          elif [ -d "stacks/k8s/${LAYER}" ]; then
+            LAYER="stacks/k8s/${LAYER}"
+          fi
+        fi
+        LAYER_BASENAME=$(basename ${LAYER})
+        echo "Destroying layer: ${LAYER} for environment: ${ENV}..."
+        {{.TERRAFORM}} -chdir=${LAYER} destroy \
+          -var-file="$(pwd)/envs/globals.tfvars" \
+          -var-file="$(pwd)/envs/${ENV}/${LAYER_BASENAME}.tfvars"

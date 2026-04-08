@@ -1,0 +1,31 @@
+# .pre-commit-config.yaml
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.105.0
+    hooks:
+      - id: terraform_fmt
+        args:
+          - --args=-recursive
+      - id: terraform_docs
+        args:
+          - --args=--output-file=README.md
+          - --args=--output-mode=inject
+
+  - repo: local
+    hooks:
+      - id: checkov-all
+        name: Checkov All Layers
+        entry: task checkov-all
+        language: system
+        pass_filenames: false

@@ -1,0 +1,5 @@
+skip-check:
+  - CKV2_AWS_62 # S3 bucket event notifications
+  - CKV_AWS_144 # S3 bucket cross-region replication
+  - CKV2_AWS_64 # KMS key policy
+  - CKV_AWS_18 # S3 Access logging - not needed, it requires additional s3 bucket for logs

@@ -1,0 +1,2 @@
+skip-check:
+  - CKV2_AWS_5 # Security group is attached via the rds module call

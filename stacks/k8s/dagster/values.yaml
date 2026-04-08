@@ -1,0 +1,40 @@
+# Global defaults for the Dagster
+# https://docs.dagster.io/deployment/oss/deployment-options/kubernetes/customizing-your-deployment
+
+global:
+  postgresqlSecretName: "dagster-rds-auth"
+  dagsterHome: "/opt/dagster/dagster_home"
+
+generatePostgresqlPasswordSecret: false
+
+dagsterWebserver:
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 80
+
+dagsterDaemon:
+  enabled: true
+
+runLauncher:
+  type: K8sRunLauncher
+
+postgresql:
+  enabled: false # External RDS is used
+  postgresqlParams:
+    sslmode: require
+  postgresqlScheme: "postgresql"
+
+# Workspace and logs
+computeLogManager:
+  type: LocalComputeLogManager
+  config:
+    localComputeLogManager:
+      baseDir: /opt/dagster/dagster_home/storage/logs
+
+dagster-user-deployments:
+  enabled: true
+  enableSubchart: false
+  ## https://github.com/dagster-io/dagster/issues/32873
+  ## Leave empty to just generate empty workspace.yaml for webserver and daemon, otherwise deployment will fail
+  deployments: []
