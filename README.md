@@ -11,7 +11,7 @@ The infrastructure is built using **OpenTofu/Terraform** and organized according
 │   ├── aws/            # AWS-specific infrastructure
 │   │   ├── bootstrap/  # S3/DynamoDB for remote state
 │   │   ├── networking/ # VPC, Subnets, NAT
-│   │   ├── database/   # RDS Aurora/PostgreSQL
+│   │   ├── database/   # RDS PostgreSQL
 │   │   └── compute/    # EKS Cluster, Node Groups
 │   └── k8s/            # Kubernetes applications & addons
 │       └── dagster/    # Dagster workflow engine
