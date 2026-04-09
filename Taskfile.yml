@@ -4,7 +4,6 @@ version: '3'
 
 vars:
   TERRAFORM: tofu
-  BACKEND_CONFIG: "common_backend.hcl"
 
 tasks:
 
@@ -17,22 +16,31 @@ tasks:
     desc: Initialize bootstrap layer locally (usage - task bootstrap-init)
     cmds:
       - |
-        echo "Initializing bootstrap layer locally..."
-        {{.TERRAFORM}} -chdir=stacks/bootstrap init -backend=false
+        set -- {{.CLI_ARGS}}
+        ENV=${1:-dev}
+        echo "Initializing bootstrap layer for environment: ${ENV}..."
+        {{.TERRAFORM}} -chdir=stacks/aws/bootstrap init -backend=false
 
   bootstrap-apply:
     desc: Apply bootstrap layer (usage - task bootstrap-apply)
     cmds:
       - |
-        echo "Applying bootstrap layer..."
-        {{.TERRAFORM}} -chdir=stacks/bootstrap apply -auto-approve
+        set -- {{.CLI_ARGS}}
+        ENV=${1:-dev}
+        echo "Applying bootstrap layer for environment: ${ENV}..."
+        {{.TERRAFORM}} -chdir=stacks/aws/bootstrap apply -auto-approve \
+          -var-file="$(pwd)/envs/${ENV}/bootstrap.tfvars"
 
   bootstrap-migrate:
     desc: Migrate bootstrap state to S3 (usage - task bootstrap-migrate)
     cmds:
       - |
-        echo "Migrating bootstrap state to S3..."
-        {{.TERRAFORM}} -chdir=stacks/bootstrap init -migrate-state
+        set -- {{.CLI_ARGS}}
+        ENV=${1:-dev}
+        echo "Migrating bootstrap state to S3 for environment: ${ENV}..."
+        {{.TERRAFORM}} -chdir=stacks/aws/bootstrap init -migrate-state -force-copy \
+          -backend-config="$(pwd)/envs/${ENV}/backend.hcl" \
+          -backend-config="key=bootstrap/terraform.tfstate"
 
   init:
     desc: Initialize a Terraform layer (usage - task init -- <layer> <env>)
@@ -53,7 +61,7 @@ tasks:
         KEY="envs/${ENV}/$(basename ${LAYER})/terraform.tfstate"
         echo "Initializing layer: ${LAYER} for environment: ${ENV}..."
         {{.TERRAFORM}} -chdir=${LAYER} init \
-          -backend-config="$(pwd)/{{.BACKEND_CONFIG}}" \
+          -backend-config="$(pwd)/envs/${ENV}/backend.hcl" \
           -backend-config="key=${KEY}" \
           -reconfigure
 

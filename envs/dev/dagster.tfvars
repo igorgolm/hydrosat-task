@@ -1,6 +1,6 @@
 project_name           = "hydrosat-taskg"
 environment            = "dev"
-terraform_state_bucket = "hydrosat-taskg-terraform-state"
+terraform_state_bucket = "hydrosat-taskg-dev-terraform-state"
 networking_state_key   = "envs/dev/networking/terraform.tfstate"
 compute_state_key      = "envs/dev/compute/terraform.tfstate"
 database_state_key     = "envs/dev/database/terraform.tfstate"

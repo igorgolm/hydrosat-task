@@ -4,7 +4,7 @@ environment            = "dev"
 region_short           = "eun1"
 networking_state_key   = "envs/dev/networking/terraform.tfstate"
 compute_state_key      = "envs/dev/compute/terraform.tfstate"
-terraform_state_bucket = "hydrosat-taskg-terraform-state"
+terraform_state_bucket = "hydrosat-taskg-dev-terraform-state"
 
 additional_tags = {
   Stack = "database"

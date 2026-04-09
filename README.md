@@ -3,7 +3,7 @@
 This repository contains all the conceptual and operational guides needed to understand, provision, and use the platform.
 The infrastructure is built using **OpenTofu** and organized according to a strict **Stacks & Layers** architecture.
 
-## Directory Layout (Root)
+## Directory Layout
 ```text
 .
 ├── envs/               # Environment-specific variables (*.tfvars)
