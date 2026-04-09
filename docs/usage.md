@@ -19,8 +19,8 @@ The AWS ALB uses a dynamic CNAME, but the Kubernetes Ingress controller expects 
 3. Add these IP addresses to your `/etc/hosts` file (macOS/Linux) or `C:\Windows\System32\drivers\etc\hosts` (Windows):
    ```text
    # Example IPs, use the ones from your nslookup command
-   13.48.83.60   dagster.dev.hydrosat.task
-   13.61.162.128 dagster.dev.hydrosat.task
+   IP_ADDRESS   dagster.dev.hydrosat.task
+   IP_ADDRESS   dagster.dev.hydrosat.task
    ```
 
 ### 2. IP Whitelisting (Security)
@@ -58,7 +58,7 @@ task apply -- dagster dev
 
 **Understanding Pod Restarts:**
 - **Adding a new pipeline:** Because you added a new deployment block to `dagster-values.yaml`, Helm will automatically spin up a brand new pod. It will appear in the Dagster UI within a minute.
-- **Updating existing code:** If you only modify an existing `.py` file (without changing `dagster-values.yaml`), Terraform updates the ConfigMap, but Kubernetes *does not* automatically restart the pod. To force the gRPC server to pick up your new Python code, run:
+- **Updating existing code:** If you only modify an existing `.py` file (without changing `dagster-values.yaml`), Opentofu updates the ConfigMap, but Kubernetes *does not* automatically restart the pod. To force the gRPC server to pick up your new Python code, run:
   ```bash
   kubectl rollout restart deployment dagster-user-deployments-<your-pipeline-name> -n dagster
   ```

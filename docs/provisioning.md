@@ -9,6 +9,7 @@ Before starting, ensure you have the following installed on your machine:
 - [OpenTofu](https://opentofu.org/): For infrastructure provisioning.
 - [Task](https://taskfile.dev/): The task runner we use to orchestrate commands.
 - [kubectl](https://kubernetes.io/docs/tasks/tools/): For interacting with the EKS cluster.
+- [terraform-docs](https://terraform-docs.io/): For generating documentation.
 
 ## Daily Operations (Taskfile)
 
@@ -19,7 +20,7 @@ task plan -- <layer> <env>    # Plan and verify changes
 task apply -- <layer> <env>   # Deploy the layer
 task destroy -- <layer> <env> # Destroy the layer
 ```
-*Valid layers: `networking`, `compute`, `database`, `dagster`.*
+*Valid layers: check `stacks/` directory*
 
 ## Sequences of Deployment
 

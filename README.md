@@ -1,4 +1,4 @@
-# HydroSat Data Platform
+# Hydrosat Data Platform
 
 This repository contains all the conceptual and operational guides needed to understand, provision, and use the platform.
 The infrastructure is built using **OpenTofu** and organized according to a strict **Stacks & Layers** architecture.
@@ -22,7 +22,7 @@ The infrastructure is built using **OpenTofu** and organized according to a stri
 ## Sections
 
 - **[Infrastructure Design](docs/architecture.md)**
-  An explanation of our architecture, network structure, and the justification for our core technological choices (Terraform/OpenTofu, EKS, Dagster, RDS).
+  An explanation of our architecture, network structure, and the justification for our core technological choices (OpenTofu, EKS, Dagster, RDS).
 - **[How to Provision](docs/provisioning.md)**
   A step-by-step guide to deploying the entire infrastructure from scratch.
 - **[How to Use](docs/usage.md)**

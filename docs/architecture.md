@@ -98,10 +98,10 @@ The Taskfile will automatically pass the new S3 state keys (e.g., `envs/staging/
 ## Tools
 
 ### [OpenTofu](https://opentofu.org/)
-We opted for **OpenTofu** to ensure an open-source, vendor-neutral IaC ecosystem while maintaining 100% compatibility with existing Terraform providers and modules, and it seems to be faster than Terraform :)
+**OpenTofu** is an open-source, vendor-neutral IaC ecosystem while maintaining 100% compatibility with existing Terraform providers and modules, and it seems to be faster than Terraform :)
 
 ### [Taskfile](https://taskfile.dev/)
-We use **Task** (`Taskfile.yml`) as our task runner. `Taskfile` provides a modern, YAML-based syntax, native cross-platform support, and allows for complex logic (like our "Smart Layer Discovery") without the archaic syntax quirks of Makefiles. It orchestrates our OpenTofu commands seamlessly across different environments.
+**Task** (`Taskfile.yml`) is our task runner. `Taskfile` provides a modern, YAML-based syntax, native cross-platform support, and allows for complex logic (like our "Smart Layer Discovery") without the archaic syntax quirks of Makefiles. It orchestrates our OpenTofu commands seamlessly across different environments.
 
 ### Alerting & Monitoring: Why the [dagster-slack](https://docs.dagster.io/integrations/libraries/slack/dagster-slack) library?
 Initially, the objective was to route job failure alerts through our VictoriaMetrics Stack and Grafana.
@@ -119,4 +119,4 @@ Instead, the native solution is to use the built-in Python `@run_failure_sensor`
 ## Security & Compliance
 - **Zero Egress:** The database layer enforces strict security groups preventing any outbound traffic.
 - **Encryption:** Storage at rest is enforced using KMS-encrypted S3 state files and RDS storage.
-- **Tagging Strategy:** A unified tagging structure (`Environment`, `Project`, `ManagedBy`) is applied across all resources for full auditability.
+- **Tagging Strategy:** A unified tagging structure (`Environment`, `Project`, `ManagedBy`, `Stack`) is applied across all resources for full auditability.
